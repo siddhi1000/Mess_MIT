@@ -1,0 +1,54 @@
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(100) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('SUPER_ADMIN', 'ADMIN', 'STUDENT') NOT NULL
+);
+
+CREATE TABLE students (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NULL,
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  roll_number VARCHAR(50) NOT NULL UNIQUE,
+  room_number VARCHAR(50) NOT NULL,
+  active TINYINT(1) NOT NULL DEFAULT 1,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE menus (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  date DATE NOT NULL UNIQUE,
+  breakfast TEXT NOT NULL,
+  lunch TEXT NOT NULL,
+  dinner TEXT NOT NULL
+);
+
+CREATE TABLE attendance (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  student_id INT NOT NULL,
+  date DATE NOT NULL,
+  present TINYINT(1) NOT NULL DEFAULT 1,
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  UNIQUE KEY uniq_attendance_student_date (student_id, date)
+);
+
+CREATE TABLE billing (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  student_id INT NOT NULL,
+  month CHAR(7) NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  status ENUM('PAID', 'UNPAID') NOT NULL DEFAULT 'UNPAID',
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  UNIQUE KEY uniq_billing_student_month (student_id, month)
+);
+
+CREATE TABLE feedback (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  student_id INT NOT NULL,
+  message TEXT NOT NULL,
+  status ENUM('NEW', 'REVIEWED') NOT NULL DEFAULT 'NEW',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+);
+
